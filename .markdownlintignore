@@ -1,0 +1,14 @@
+# Go-spezifische Ordner und Dateien
+vendor/          # Lokale Kopien von Go-Abhängigkeiten (go mod vendor)
+bin/             # Ordner für kompilierte Go-Binärdateien
+.bin/
+
+# Test- und Abdeckungsberichte (Coverage)
+coverage.out
+coverage.html
+profile.out
+
+# Standard-Systemordner
+.git/
+.github/
+node_modules/    # Falls du ein Web-Frontend im selben Repo hast
