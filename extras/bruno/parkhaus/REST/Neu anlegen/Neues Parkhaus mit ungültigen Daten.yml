@@ -1,0 +1,58 @@
+info:
+  name: Neues Parkhaus mit ungültigen Daten
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{restUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Südpfalz-Parkhaus Bellheim",
+        "tarifProStunde": 2.2,
+        "adresse": {
+          "plz": "76756",
+          "ort": "Bellheim",
+          "strasse": "Hauptstraße",
+          "hausnummer": "101"
+        },
+        "autos": [
+          {
+            "kennzeichen": "GER-JD-2026",
+            "einfahrtszeit": "2026-04-02T09:00:00Z",
+            "kundentyp": "ANWOHNER"
+          }
+        ]
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "422"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/problem+json
+    - expression: res.body
+      operator: isJson
+    - expression: res.body
+      operator: isNotEmpty
+    - expression: res.body.statusCode
+      operator: eq
+      value: "422"
+    - expression: res.body.title
+      operator: eq
+      value: Unprocessable Content
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

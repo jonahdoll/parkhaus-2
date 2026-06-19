@@ -1,0 +1,27 @@
+info:
+  name: Neues Auto
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{restUrl}}/:id/autos"
+  params:
+    - name: id
+      value: "4"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "kennzeichen": "GER-JD-2026",
+        "einfahrtszeit": "2026-04-02T09:00:00Z",
+        "kundentyp": "ANWOHNER"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
