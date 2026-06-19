@@ -9,7 +9,7 @@ all: fmt tidy lint security run
 # Startet den Gin-Server
 run:
 	@echo "🚀 Starte den REST-API Server..."
-	go run main.go
+	go run cmd/server/main.go
 
 # Formatiert den gesamten Go-Code nach dem offiziellen Standard
 fmt:
