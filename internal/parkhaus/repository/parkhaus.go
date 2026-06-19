@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 
 	"gorm.io/gorm"
 
@@ -61,7 +62,9 @@ func (r *ParkhausRepository) Search(criteria SearchCriteria, offset, limit int) 
 	query := r.db.Model(&model.Parkhaus{})
 
 	if criteria.Name != nil {
-		query = query.Where("name = ?", *criteria.Name)
+		// Teilstring-Suche (case-insensitive): "Berlin" findet auch "Parkhaus Berlin".
+		// LIKE-Sonderzeichen im Suchbegriff werden escaped, damit sie woertlich gelten.
+		query = query.Where("name ILIKE ?", "%"+escapeLike(*criteria.Name)+"%")
 	}
 	if criteria.Kapazitaet != nil {
 		query = query.Where("kapazitaet <= ?", *criteria.Kapazitaet)
@@ -136,3 +139,13 @@ func (r *ParkhausRepository) ReplaceFile(file *model.ParkhausFile) error {
 		return tx.Create(file).Error
 	})
 }
+
+// escapeLike maskiert die LIKE-Sonderzeichen (\, %, _), damit ein Suchbegriff
+// woertlich (als Teilstring) und nicht als Muster interpretiert wird.
+func escapeLike(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, "%", `\%`)
+	s = strings.ReplaceAll(s, "_", `\_`)
+	return s
+}
+
