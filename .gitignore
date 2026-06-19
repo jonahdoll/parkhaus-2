@@ -1,0 +1,19 @@
+# Binaries / Build-Artefakte
+/parkhaus-server
+*.exe
+*.out
+bin/
+
+# Go
+*.test
+*.prof
+
+# IDE (JetBrains)
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
