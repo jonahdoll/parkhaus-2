@@ -111,15 +111,15 @@ Das Projekt enthält ein Makefile mit nützlichen Entwickler-Werkzeugen:
 **Hinweis:** Das Makefile setzt eine Unix-ähnliche Shell-Umgebung voraus. Auf Windows wird Git Bash, MSYS2 oder WSL empfohlen.
 
 ## Prompts/Requests an KI-Agent/en
-1. Plan Mode:Wir sollen eine Rest Schnittstelle mit der Programmiersprache Go entwickeln. Dabei ist Security mit Keykloak erstmal optional. Die genauen Anforderungen sind "Frameworks und Bibliotheken
-   REST-Schnittstelle (Lesen und Neuanlegen)
-   Validierung (nur Neuanlegen)
-   OR-Mapping (für PostgreSQL)
-   Optional: OIDC mit Keycloak
-   Einfacher Integrationstest"
-2. Nicht so kompliziert. Erstmal nur welche Frameworks und so wie brauchen also welche Produkte.
-3. Bevor wir weitermachen solltest du wissen das dieser Server bereits in TypeScript implementiert exisitiert. Ich habe dem Agenten dort die Aufgabe gegeben das Projekt für dich zusammen zu fassen so das du genau weißt was der Server können muss.
-4. Ich soll dieses Projekt so in Go bauen. Analysiere das gesamte Projekt und schreib einen Prompt für einen Planing Agent der basierend darauf dann das neue Proekt IMplementiert
+1. **Plan-Modus:** Wir sollen eine REST-Schnittstelle mit der Programmiersprache Go entwickeln. Die Absicherung mit Keycloak ist dabei zunächst optional. Die genauen Anforderungen lauten:
+   - REST-Schnittstelle (Lesen und Neuanlegen)
+   - Validierung (nur beim Neuanlegen)
+   - OR-Mapping (für PostgreSQL)
+   - Optional: OIDC mit Keycloak
+   - Einfacher Integrationstest
+2. Bitte nicht zu kompliziert. Lass uns zunächst nur klären, welche Frameworks bzw. Produkte wir überhaupt benötigen.
+3. Bevor wir weitermachen, solltest du wissen, dass dieser Server bereits in TypeScript implementiert existiert. Ich habe den dortigen Agenten beauftragt, das Projekt für dich zusammenzufassen, damit du genau weißt, welche Funktionen der Server bieten muss.
+4. Ich soll dieses Projekt in Go nachbauen. Analysiere das gesamte Projekt und schreibe einen Prompt für einen Planning-Agenten, der das neue Projekt auf dieser Grundlage anschließend implementiert.
 
 Ist die Grundlegende Struktur dieses GO Projekts passend? Funktionieren Dateien wie @/tools.go richtig und enhalten die Notwendingen Abhöngigkeiten für dev Dependencies einer RestSchnittstelle?
 
