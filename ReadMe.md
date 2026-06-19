@@ -2,13 +2,29 @@
 
 ## Namen
 
+Jonah Doll, Kilian Schmidt
+
 ## Link zum Git-Repository
+
+https://github.com/jonahdoll/parkhaus-2
 
 ## KI-Werkzeuge
 
+Cline mit DeepSeek Chat
+
+GitHub Copilot mit Claude Opus 4.8
+
 ### Agenten
 
+Cline mit DeepSeek Chat
+
+GitHub Copilot mit Claude Opus 4.8
+
 ### Chat-URLs, z.B. https://chatgpt.com
+
+https://www.deepseek.com
+
+https://www.anthropic.com/claude/opus
 
 ## Frameworks und Bibliotheken
 Rest-Schnittstelle: Gin
@@ -34,7 +50,31 @@ Schema `parkhaus` mit Tabellen `parkhaus`, `adresse`, `auto`, `parkhaus_file`. G
 Nicht implementiert (out of scope).
 
 ### Einfacher Integrationstest
-[testcontainers-go](https://golang.testcontainers.org) — wird im nächsten Schritt ergänzt (echte PostgreSQL im Container für GET/POST).
+[testcontainers-go](https://golang.testcontainers.org) — echte PostgreSQL im Container für GET/POST.
+
+## Datenmodell (ER-Diagramm)
+
+Das ER-Diagramm ist unter docs/ER-Diagramm.plantuml
+
+## Tests
+
+Das Projekt enthält mehrere Unit- und Integrationstests.
+
+### Unit-Tests
+Die Service-Schicht wird mit gemocktem Repository getestet:
+- `internal/parkhaus/service/parkhaus_read_test.go`
+- `internal/parkhaus/service/parkhaus_write_test.go`
+- `internal/parkhaus/service/mock_repository_test.go`
+
+### Integrationstests
+Der Handler wird mit einer echten PostgreSQL-Datenbank (via testcontainers-go) getestet:
+- `internal/parkhaus/handler/get_endpoints_integration_test.go`
+
+### Ausführen
+
+```sh
+make test
+```
 
 ## Start
 
@@ -43,7 +83,7 @@ Nicht implementiert (out of scope).
 docker compose -f extras/compose.yml up -d
 
 # 2. Anwendung starten (Port 8080)
-go run ./cmd/server
+make run
 
 # Beispiele
 curl http://localhost:8080/rest/1000                # Lesen nach ID
@@ -80,3 +120,24 @@ Das Projekt enthält ein Makefile mit nützlichen Entwickler-Werkzeugen:
 2. Nicht so kompliziert. Erstmal nur welche Frameworks und so wie brauchen also welche Produkte.
 3. Bevor wir weitermachen solltest du wissen das dieser Server bereits in TypeScript implementiert exisitiert. Ich habe dem Agenten dort die Aufgabe gegeben das Projekt für dich zusammen zu fassen so das du genau weißt was der Server können muss.
 4. Ich soll dieses Projekt so in Go bauen. Analysiere das gesamte Projekt und schreib einen Prompt für einen Planing Agent der basierend darauf dann das neue Proekt IMplementiert
+
+Ist die Grundlegende Struktur dieses GO Projekts passend? Funktionieren Dateien wie @/tools.go richtig und enhalten die Notwendingen Abhöngigkeiten für dev Dependencies einer RestSchnittstelle?
+
+Plan: Behebe die Codestyle Fehler und überprüfe danach dass der korrekte Codestyle eingehalten wurde.
+
+Plan: Wir vollen strukturierten und lesbaren Code. Teile den Service Layer und die Handler in seperierte Dateien für Read und Write auf.
+
+Plan: Füge hinzu das Deutsche Kommentare nicht zu lint fehlern führen.
+
+Plan: Schreibe mir REINE Unit-Tests für den Service Layer.
+
+Wichtig:
+1. Keine Integrationstests! Nutze gin.CreateTestContext und httptest.NewRecorder() für Tests rein im Arbeitsspeicher (kein Server-Start).
+2. Falls der Code eine DB oder Services nutzt, erstelle einfache Mocks dafür.
+3. Schreibe die Tests als typische Go "Table-Driven Tests" (Test-Strukturen in einer Schleife).
+4. Teste den Erfolgsfall (200 OK) sowie Fehlerfälle (z.B. ungültiges JSON oder DB-Fehler).
+5. Nutze github.com/stretchr/testify/assert für die Überprüfungen.
+
+Plan: Füge zu der Make File hinzu, dass Unit-Tests, Integrations-Tests und beides ausgeührt werden kann
+
+Plan: Fix die codestyle Fehler
