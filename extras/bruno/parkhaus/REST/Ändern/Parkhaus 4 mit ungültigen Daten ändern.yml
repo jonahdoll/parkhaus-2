@@ -1,0 +1,48 @@
+info:
+  name: Parkhaus 4 mit ungültigen Daten ändern
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: "{{restUrl}}/:id"
+  headers:
+    - name: If-Match
+      value: '"0"'
+  params:
+    - name: id
+      value: "4"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "kapazitaet": 120,
+        "tarifProStunde": 2.3
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "422"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/problem+json
+    - expression: res.body.statusCode
+      operator: eq
+      value: "422"
+    - expression: res.body.title
+      operator: eq
+      value: Unprocessable Content
+    - expression: res.body.detail
+      operator: isArray
+    - expression: res.body.detail
+      operator: isNotEmpty
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
