@@ -1,0 +1,48 @@
+info:
+  name: Neues Parkhaus ohne Token
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{restUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Südpfalz-Parkhaus Bellheim",
+        "kapazitaet": 120,
+        "tarifProStunde": 2.2,
+        "adresse": {
+          "plz": "76756",
+          "ort": "Bellheim",
+          "strasse": "Hauptstraße",
+          "hausnummer": "101"
+        },
+        "autos": [
+          {
+            "kennzeichen": "GER-JD-2026",
+            "einfahrtszeit": "2026-04-02T09:00:00Z",
+            "kundentyp": "ANWOHNER"
+          }
+        ]
+      }
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "401"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/problem+json
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

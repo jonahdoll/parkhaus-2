@@ -1,0 +1,45 @@
+info:
+  name: Parkhaus 4 mit alter Versionsnummer ändern
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{restUrl}}/:id"
+  headers:
+    - name: If-Match
+      value: '"-1"'
+  params:
+    - name: id
+      value: "4"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Südpfalz-Parkhaus Bellheim",
+        "kapazitaet": 120,
+        "tarifProStunde": 2.3
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "412"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/problem+json
+    - expression: res.body.statusCode
+      operator: eq
+      value: "412"
+    - expression: res.body.detail
+      operator: contains
+      value: Versionsnummer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

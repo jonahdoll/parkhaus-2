@@ -1,0 +1,36 @@
+info:
+  name: Neues Parkhaus
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{restUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Südpfalz-Parkhaus Bellheim",
+        "kapazitaet": 120,
+        "tarifProStunde": 2.2,
+        "adresse": {
+          "plz": "76756",
+          "ort": "Bellheim",
+          "strasse": "Hauptstraße",
+          "hausnummer": "101"
+        },
+        "autos": [
+          {
+            "kennzeichen": "GER-JD-2026",
+            "einfahrtszeit": "2026-04-02T09:00:00Z",
+            "kundentyp": "ANWOHNER"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
