@@ -13,5 +13,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	router.Run()
+	if err := router.Run(); err != nil {
+		panic(err)
+	}
 }
