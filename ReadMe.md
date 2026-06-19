@@ -2,7 +2,7 @@
 
 ## Namen
 
-Jonah Doll, Kilian Schmidt
+Jonah Doll, Kilian Schmitt
 
 ## Link zum Git-Repository
 
@@ -27,34 +27,62 @@ https://www.deepseek.com
 https://www.anthropic.com/claude/opus
 
 ## Frameworks und Bibliotheken
-Rest-Schnittstelle: Gin
-Validierung go-playground/validator (bereits in Gin integriert)
-OR-Mapping: GORM
-Integrationstest: testcontainers-go
 
-### REST-Schnittstelle (Lesen, Neuanlegen, Datei-Upload/-Download)
+- **REST-Schnittstelle:** Gin
+- **Validierung:** go-playground/validator (bereits in Gin integriert)
+- **OR-Mapping:** GORM
+- **Integrationstest:** testcontainers-go
+
+### REST-Schnittstelle (Lesen, Neuanlegen, Ändern, Löschen, Datei-Upload/-Download)
 [Gin](https://github.com/gin-gonic/gin) (`github.com/gin-gonic/gin`) — Routing, JSON-Handling, Middleware.
-Endpunkte unter `/rest` (GET lesen/suchen, POST anlegen, PUT ändern, DELETE), Health unter `/health/liveness` und `/health/readiness`.
+Alle fachlichen Endpunkte liegen unter `/rest`, die Health-Checks unter `/health/liveness` und `/health/readiness` (liefern jeweils `{"status":"up"}`).
 
-**Datei-Upload und -Download:** Über die REST-Schnittstelle können Dateien zu einem Parkhaus hochgeladen und wieder heruntergeladen werden. Der Upload erfolgt per `POST /rest/{id}/files` (multipart/form-data), der Download per `GET /rest/{id}/files/{fileId}`. Die Dateien werden in der Datenbank (Tabelle `parkhaus_file`) gespeichert.
+#### Endpunkt-Übersicht
 
-### Validierung (nur Neuanlegen)
+| Methode & Pfad | Beschreibung |
+|---|---|
+| `GET /rest/:id` | Parkhaus nach ID (inkl. Adresse), setzt `ETag` |
+| `GET /rest` | Suche/Liste mit Pagination und Filtern (`name`, `kapazitaet`, `tarifProStunde`, `page`, `size`); `count-only` liefert nur die Anzahl |
+| `GET /rest/file/:id` | Datei-Download zu einem Parkhaus |
+| `POST /rest` | Neues Parkhaus anlegen (transaktional inkl. Adresse + Autos), `Location`-Header |
+| `PUT /rest/:id` | Parkhaus ändern (erfordert `If-Match`), setzt neuen `ETag` |
+| `POST /rest/:id/autos` | Auto zu einem Parkhaus hinzufügen (Kapazitätsprüfung) |
+| `POST /rest/:id` | Datei-Upload (multipart/form-data, Feld `file`) |
+| `DELETE /rest/:id` | Parkhaus löschen (idempotent, immer `204`) |
+| `GET /health/liveness`, `GET /health/readiness` | Health-Checks |
+
+**Optimistische Synchronisation (ETag / If-Match / If-None-Match):**
+Lese-Antworten enthalten den Header `ETag: "<version>"`. Beim Lesen kann mit `If-None-Match` ein `304 Not Modified` ausgelöst werden. Änderungen via `PUT` erfordern den Header `If-Match`; fehlt er, wird `428 Precondition Required` zurückgegeben, bei ungültiger oder veralteter Versionsnummer `412 Precondition Failed`. Erfolgreiche Änderungen erhöhen die Version um 1 und liefern `204 No Content` mit neuem `ETag`.
+
+**Datei-Upload und -Download:** Über die REST-Schnittstelle kann genau **eine** Datei pro Parkhaus hochgeladen und wieder heruntergeladen werden (1:1-Beziehung). Der Upload erfolgt per `POST /rest/:id` (multipart/form-data, Feld `file`); eine bereits vorhandene Datei wird dabei ersetzt. Der Download erfolgt per `GET /rest/file/:id` mit den Headern `Content-Type` (gespeicherter MIME-Typ, Fallback `application/octet-stream`) und `Content-Disposition: attachment`. Die Dateien werden in der Datenbank (Tabelle `parkhaus_file`, Spalte `data` als `bytea`) gespeichert.
+
+### Validierung (Neuanlegen und Ändern)
 [go-playground/validator](https://github.com/go-playground/validator) (`github.com/go-playground/validator/v10`, in Gin integriert).
-Validierung der Eingabe-DTOs beim Neuanlegen/Ändern; Fehler werden als RFC-9457 Problem Details (HTTP 422) mit Feld-Pfaden zurückgegeben.
+Validierung der Eingabe-DTOs beim Neuanlegen (`POST`) und Ändern (`PUT`); Fehler werden als RFC-9457 Problem Details (HTTP 422) mit Feld-Pfaden zurückgegeben.
 
 ### OR-Mapping (für PostgreSQL)
 [GORM](https://gorm.io) (`gorm.io/gorm` + `gorm.io/driver/postgres`).
-Schema `parkhaus` mit Tabellen `parkhaus`, `adresse`, `auto`, `parkhaus_file`. Geldbetrag `tarifProStunde` via [shopspring/decimal](https://github.com/shopspring/decimal). DDL/Seeding über SQL-Init-Skripte (`extras/compose/postgres/init/parkhaus`).
+Schema `parkhaus` mit Tabellen `parkhaus`, `adresse`, `auto`, `parkhaus_file`. Geldbetrag `tarifProStunde` via [shopspring/decimal](https://github.com/shopspring/decimal) (in der JSON-Response als Zahl serialisiert). DDL/Seeding erfolgt über SQL-Init-Skripte (`extras/compose/postgres/init/parkhaus`, `01-create.sql` + `02-copy-csv.sql`), **nicht** über GORM-AutoMigrate.
 
 ### Optional: OIDC mit Keycloak
-Nicht implementiert (out of scope).
+Nicht in die Anwendung integriert (out of scope). Für eine spätere Anbindung sind unter `extras/keycloak/` bereits Infrastruktur-Artefakte (Compose, TLS) vorbereitet; das Paket `internal/security/` ist als Platzhalter vorgesehen.
 
 ### Einfacher Integrationstest
-[testcontainers-go](https://golang.testcontainers.org) — echte PostgreSQL im Container für GET/POST.
+[testcontainers-go](https://golang.testcontainers.org) — echte PostgreSQL im Container für die GET-Endpunkte.
 
 ## Datenmodell (ER-Diagramm)
 
 Das ER-Diagramm ist unter docs/ER-Diagramm.plantuml
+
+## Konfiguration
+
+Die Anwendung wird über Umgebungsvariablen konfiguriert (sinnvolle Defaults sind hinterlegt):
+
+| Variable | Default | Beschreibung |
+|---|---|---|
+| `PORT` | `8080` | HTTP-Port des Servers |
+| `DATABASE_URL` | `postgres://parkhaus:parkhaus@localhost:5432/parkhaus?sslmode=disable&search_path=parkhaus` | PostgreSQL-Connection-String (Schema `parkhaus`) |
+| `LOG_LEVEL` | `info` | Log-Level (`debug`, `info`, `warn`, `error`) |
 
 ## Tests
 
@@ -86,12 +114,30 @@ docker compose -f extras/compose.yml up -d
 make run
 
 # Beispiele
-curl http://localhost:8080/rest/1000                # Lesen nach ID
+curl http://localhost:8080/rest/1000                # Lesen nach ID (liefert ETag-Header)
 curl "http://localhost:8080/rest?size=5"            # Liste (paginiert)
 curl "http://localhost:8080/rest?count-only"        # nur Anzahl
 curl -X POST http://localhost:8080/rest \
   -H "Content-Type: application/json" \
   -d '{"name":"Parkhaus Neu","kapazitaet":10,"tarifProStunde":2.5,"adresse":{"plz":"68159","ort":"Mannheim","strasse":"Hauptstr","hausnummer":"1"}}'
+
+# Ändern (optimistische Sperre über If-Match mit der aktuellen Version)
+curl -X PUT http://localhost:8080/rest/1000 \
+  -H "Content-Type: application/json" \
+  -H 'If-Match: "0"' \
+  -d '{"name":"Parkhaus Neu","kapazitaet":20,"tarifProStunde":3.0}'
+```
+
+### Docker-Image der Anwendung
+
+Das Projekt enthält ein mehrstufiges `Dockerfile` (Build mit `golang:1.26`, schlankes
+distroless-Runtime-Image). Image bauen und starten:
+
+```sh
+docker build -t parkhaus-2 .
+docker run --rm -p 8080:8080 \
+  -e DATABASE_URL="postgres://parkhaus:parkhaus@host.docker.internal:5432/parkhaus?sslmode=disable&search_path=parkhaus" \
+  parkhaus-2
 ```
 
 ## Makefile-Befehle (Linter, Formatter & Dependency-Check)

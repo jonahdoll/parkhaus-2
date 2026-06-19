@@ -49,6 +49,6 @@ Parkhaus ||.left.|| Adresse
 Parkhaus ||..o{ Auto
 Parkhaus ||--o| Parkhaus_File
 
-footer (c) Jonah Doll, Kilian Schmidt
+footer (c) Jonah Doll, Kilian Schmitt
 
 @enduml
