@@ -1,0 +1,54 @@
+@startuml ER Diagramm
+
+' hide the spot
+hide circle
+
+' evtl. Prbleme mit Kraehenfuessen vermeiden
+skinparam linetype ortho
+
+entity "Parkhaus" {
+  * id : integer <<generated>>
+  --
+  * version: integer
+  * name: text
+  * kapazitaet: integer
+  * tarif_pro_stunde: decimal
+  * erzeugt: timestamp
+  * aktualisiert: timestamp
+}
+
+entity "Adresse" {
+  * id : integer <<generated>>
+  --
+  * plz : text
+  * ort : text
+  * strasse: text
+  * hausnummer: text
+  * **parkhaus_id**: integer <<FK>>
+}
+
+entity "Auto" {
+  * id : integer <<generated>>
+  --
+  * kennzeichen: text
+  * einfahrtszeit: timestamp
+  * kundentyp: kundentyp
+  * **parkhaus_id**: integer <<FK>>
+}
+
+entity "Parkhaus_File" {
+  * id : integer <<generated>>
+  --
+  * data : bytea
+  * filename : text
+  * mimetype : text
+  * **parkhaus_id** : integer <<FK>>
+}
+
+Parkhaus ||.left.|| Adresse
+Parkhaus ||..o{ Auto
+Parkhaus ||--o| Parkhaus_File
+
+footer (c) Jonah Doll, Kilian Schmidt
+
+@enduml
