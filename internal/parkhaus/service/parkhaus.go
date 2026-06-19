@@ -154,6 +154,17 @@ func (s *ParkhausService) Update(id uint, ifMatch string, dto model.UpdateParkha
 		}
 	}
 
+	// Name-Eindeutigkeit prüfen (außer es ist der eigene Name).
+	if p.Name != dto.Name {
+		exists, err := s.repo.ExistsByName(dto.Name)
+		if err != nil {
+			return 0, err
+		}
+		if exists {
+			return 0, &apperr.ParkhausExistsError{Name: dto.Name}
+		}
+	}
+
 	p.Name = dto.Name
 	p.Kapazitaet = dto.Kapazitaet
 	p.TarifProStunde = dto.TarifProStunde
