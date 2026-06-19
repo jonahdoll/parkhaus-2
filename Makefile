@@ -1,4 +1,4 @@
-.PHONY: run fmt lint security tidy all help
+.PHONY: run fmt lint security tidy test-unit test-integration test all help
 
 # Pfad zum lokalen Linter
 LOCAL_LINT_BIN := ./bin/golangci-lint
@@ -43,6 +43,19 @@ security:
 		echo "   go install golang.org/x/vuln/cmd/govulncheck@latest"; \
 	fi
 
+# Führt die reinen Unit-Tests (Service-Layer, kein Server-Start, keine DB) aus
+test-unit:
+	@echo "🧪 Führe Unit-Tests aus (Service-Layer)..."
+	go test -count=1 -short ./internal/parkhaus/service/
+
+# Führt die Integrationstests (Handler, benötigt PostgreSQL-Container) aus
+test-integration:
+	@echo "🧪 Führe Integrationstests aus (Handler, benötigt Docker)..."
+	go test -count=1 ./internal/parkhaus/handler/
+
+# Führt zuerst Unit-Tests, dann Integrationstests aus
+test: test-unit test-integration
+
 # Zeigt eine Übersicht aller verfügbaren Befehle
 help:
 	@echo "Verfügbare Makefile-Befehle:"
@@ -51,4 +64,7 @@ help:
 	@echo "  make lint     - Führt die statische Code-Analyse aus"
 	@echo "  make security - Scannt das Projekt auf bekannte Sicherheitslücken"
 	@echo "  make tidy     - Räumt ungenutzte Dependencies in go.mod auf"
+	@echo "  make test-unit        - Führt nur die Unit-Tests aus (schnell, keine DB)"
+	@echo "  make test-integration - Führt nur die Integrationstests aus (braucht Docker)"
+	@echo "  make test             - Führt Unit- und Integrationstests nacheinander aus"
 	@echo "  make all      - Führt fmt, tidy, lint, security aus und startet dann den Server"
