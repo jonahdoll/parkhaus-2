@@ -157,7 +157,7 @@ func (s *ParkhausService) Update(id uint, ifMatch string, dto model.UpdateParkha
 	p.Name = dto.Name
 	p.Kapazitaet = dto.Kapazitaet
 	p.TarifProStunde = dto.TarifProStunde
-	p.Version = p.Version + 1
+	p.Version++
 	p.Aktualisiert = time.Now()
 
 	if err := s.repo.Update(p); err != nil {

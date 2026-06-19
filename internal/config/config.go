@@ -12,12 +12,13 @@ type Config struct {
 	LogLevel    slog.Level
 }
 
-// Load liest die Konfiguration aus Umgebungsvariablen mit sinnvollen Defaults.
+// Load liest die Configuration aus Umgebungsvariablen mit sinnvollen Defaults.
 func Load() Config {
 	return Config{
-		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://parkhaus:parkhaus@localhost:5432/parkhaus?sslmode=disable&search_path=parkhaus"),
-		LogLevel:    parseLevel(getEnv("LOG_LEVEL", "info")),
+		Port: getEnv("PORT", "8080"),
+		DatabaseURL: getEnv("DATABASE_URL",
+			"postgres://parkhaus:parkhaus@localhost:5432/parkhaus?sslmode=disable&search_path=parkhaus"),
+		LogLevel: parseLevel(getEnv("LOG_LEVEL", "info")),
 	}
 }
 

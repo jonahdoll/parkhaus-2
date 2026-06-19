@@ -6,9 +6,9 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// init sorgt dafür, dass decimal.Decimal in JSON als Zahl (ohne Anführungszeichen)
+// InitDecimalMarshal sorgt dafür, dass decimal.Decimal in JSON als Zahl (ohne Anführungszeichen)
 // serialisiert wird – gemäß Spezifikation muss tarifProStunde eine number sein.
-func init() {
+func InitDecimalMarshal() {
 	decimal.MarshalJSONWithoutQuotes = true
 }
 
@@ -105,25 +105,12 @@ func ToParkhausDTO(p Parkhaus) ParkhausDTO {
 
 // ToAdresseDTO wandelt eine Adresse-Entity in ihr DTO um.
 func ToAdresseDTO(a Adresse) AdresseDTO {
-	return AdresseDTO{
-		ID:         a.ID,
-		PLZ:        a.PLZ,
-		Ort:        a.Ort,
-		Strasse:    a.Strasse,
-		Hausnummer: a.Hausnummer,
-		ParkhausID: a.ParkhausID,
-	}
+	return AdresseDTO(a)
 }
 
 // ToAutoDTO wandelt eine Auto-Entity in ihr DTO um.
 func ToAutoDTO(a Auto) AutoDTO {
-	return AutoDTO{
-		ID:            a.ID,
-		Kennzeichen:   a.Kennzeichen,
-		Einfahrtszeit: a.Einfahrtszeit,
-		Kundentyp:     a.Kundentyp,
-		ParkhausID:    a.ParkhausID,
-	}
+	return AutoDTO(a)
 }
 
 // ToParkhausDTOs wandelt eine Liste von Entities in DTOs um.
