@@ -12,10 +12,13 @@ import (
 
 	"parkhaus-2/internal/config"
 	"parkhaus-2/internal/db"
+	"parkhaus-2/internal/parkhaus/model"
 	"parkhaus-2/internal/server"
 )
 
 func main() {
+	model.InitDecimalMarshal()
+
 	cfg := config.Load()
 
 	// Strukturiertes Logging via slog.
@@ -33,8 +36,9 @@ func main() {
 	router := server.New(database)
 
 	srv := &http.Server{
-		Addr:    ":" + cfg.Port,
-		Handler: router,
+		Addr:              ":" + cfg.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	// Server in Goroutine starten.
