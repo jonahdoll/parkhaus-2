@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: parkhaus-postgres
+    environment:
+      POSTGRES_USER: parkhaus
+      POSTGRES_PASSWORD: parkhaus
+      POSTGRES_DB: parkhaus
+    ports:
+      - "5432:5432"
+    volumes:
+      - parkhaus-data:/var/lib/postgresql/data
+      # Init-Skripte (werden beim ersten Start in alphabetischer Reihenfolge ausgeführt)
+      - ./compose/postgres/init/parkhaus/01-create.sql:/docker-entrypoint-initdb.d/01-create.sql:ro
+      - ./compose/postgres/init/parkhaus/02-copy-csv.sql:/docker-entrypoint-initdb.d/02-copy-csv.sql:ro
+      # CSV-Daten für COPY
+      - ./compose/postgres/init/parkhaus/csv:/docker-entrypoint-initdb.d/csv:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parkhaus -d parkhaus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  parkhaus-data:
+
